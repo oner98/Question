@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kahoot Style Quiz Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            transition: background-color 1s ease;
+        }
+
+        h1 {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .question-container {
+            margin-top: 50px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 80%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .question {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #4CAF50;
+        }
+
+        .answers {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .answers li {
+            background-color: #f0f0f0;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .answers li:hover {
+            background-color: #ddd;
+        }
+
+        .correct {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .incorrect {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .score-board {
+            margin-top: 50px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: inline-block;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .score-board h2 {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+
+        .score-board p {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .restart-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        .restart-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Welcome to the Quiz Game!</h1>
+
+    <div class="question-container">
+        <div class="question" id="question">Question will appear here...</div>
+        <ul class="answers" id="answers">
+            <!-- Answers will appear here -->
+        </ul>
+        <div class="result" id="result"></div>
+    </div>
+
+    <div class="score-board" id="score-board" style="display: none;">
+        <h2>Game Over!</h2>
+        <p>Your total score is: <span id="final-score">0</span></p>
+        <button class="restart-button" onclick="restartGame()">Restart Game</button>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                "question": "What is the capital of France?",
+                "answers": ["Berlin", "Madrid", "Paris", "Rome"],
+                "correct": "Paris"
+            },
+            {
+                "question": "Which planet is known as the Red Planet?",
+                "answers": ["Earth", "Mars", "Jupiter", "Saturn"],
+                "correct": "Mars"
+            },
+            {
+                "question": "Who developed the theory of relativity?",
+                "answers": ["Isaac Newton", "Albert Einstein", "Galileo Galilei", "Nikola Tesla"],
+                "correct": "Albert Einstein"
+            },
+            {
+                "question": "What is the largest ocean on Earth?",
+                "answers": ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
+                "correct": "Pacific Ocean"
+            },
+            {
+                "question": "What is the speed of light?",
+                "answers": ["300,000 km/s", "150,000 km/s", "450,000 km/s", "100,000 km/s"],
+                "correct": "300,000 km/s"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        const sarcasticMessages = [
+            "Oops! Did you think it was that easy?",
+            "Wrong! Try again, you'll get it next time... maybe.",
+            "Nope! Maybe some more studying would help!",
+            "Uh-oh! That’s not it. Maybe you should google it.",
+            "Whoops! Close, but no cigar."
+        ];
+
+        // Function to generate random color
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        // Function to load the current question and answers
+        function loadQuestion() {
+            const questionData = quizData[currentQuestion];
+            document.getElementById('question').textContent = questionData.question;
+
+            const answersList = document.getElementById('answers');
+            answersList.innerHTML = ''; // Clear previous answers
+
+            questionData.answers.forEach(answer => {
+                const li = document.createElement('li');
+                li.textContent = answer;
+                li.onclick = function() { checkAnswer(answer); };
+                answersList.appendChild(li);
+            });
+
+            // Change background color after each question
+            document.body.style.backgroundColor = getRandomColor();
+        }
+
+        // Function to check if the selected answer is correct
+        function checkAnswer(selectedAnswer) {
+            const correctAnswer = quizData[currentQuestion].correct;
+            const resultElement = document.getElementById('result');
+            const answersList = document.getElementById('answers');
+
+            // Highlight the correct or incorrect answer
+            const listItems = answersList.getElementsByTagName('li');
+            for (let item of listItems) {
+                item.classList.remove('correct', 'incorrect');
+                if (item.textContent === selectedAnswer) {
+                    if (selectedAnswer === correctAnswer) {
+                        item.classList.add('correct');
+                        resultElement.textContent = "Correct Answer!";
+                        resultElement.style.color = "green";
+                    } else {
+                        item.classList.add('incorrect');
+                        const randomMessage = sarcasticMessages[Math.floor(Math.random() * sarcasticMessages.length)];
+                        resultElement.textContent = `${randomMessage} The correct answer was: ${correctAnswer}`;
+                        resultElement.style.color = "red";
+                    }
+                }
+            }
+
+            // Move to the next question after a brief delay
+            currentQuestion++;
+
+            if (selectedAnswer === correctAnswer) {
+                score++;
+            }
+
+            if (currentQuestion < quizData.length) {
+                setTimeout(() => {
+                    resultElement.textContent = '';
+                    loadQuestion();
+                }, 2000);
+            } else {
+                setTimeout(() => {
+                    showFinalScore();
+                }, 2000);
+            }
+        }
+
+        // Function to show the final score
+        function showFinalScore() {
+            document.getElementById('score-board').style.display = 'inline-block';
+            document.getElementById('final-score').textContent = score;
+        }
+
+        // Function to restart the game
+        function restartGame() {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('score-board').style.display = 'none';
+            loadQuestion();
+        }
+
+        // Shuffle the quizData array to randomize the order of questions
+        function shuffleQuizData() {
+            for (let i = quizData.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [quizData[i], quizData[j]] = [quizData[j], quizData[i]]; // Swap elements
+            }
+        }
+
+        // Load the first question after shuffling the questions
+        shuffleQuizData();
+        loadQuestion();
+
+    </script>
+
+</body>
+</html>
